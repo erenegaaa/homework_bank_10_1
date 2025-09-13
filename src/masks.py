@@ -1,5 +1,4 @@
 import re
-
 """
 Модуль для маскировки банковсикх реквизитов.
 """
@@ -47,6 +46,13 @@ def mask_card_number(card_number: str) -> str:
     digit = re.sub(r"\D", "", card_number)
     if len(digit) != 16:
         raise ValueError("Номер карты должен состоять из 16 цифр!")
+
+    text = re.sub(r"\d", "", card_number)
+    if len(text) == 0:
+        raise ValueError("Вы не ввели тип карты!")
+
+    masked_card = f"{text}: {digit[:4]} {digit[4:6]}** **** {digit[-4:]}"
+    return masked_card
 
 
 def get_mask_account(account_number: int) -> str:

@@ -3,23 +3,21 @@
 """
 
 from src.masks import get_mask_account, get_mask_card_number
-from src.widget import mask_account_card, get_date
+from src.widget import mask_account_card
 
 
 def main() -> None:
-    """Основная функция."""
+    """Функция управления и вывода"""
     print("Банковский виджет - маскировка данных")
+    card = input("Введите наименование и номер карты: ")
+
+    account = input("Введите номер счёта: ")
+
 
     try:
-        card = input("Введите наименование и номер карты: ")
         print(mask_account_card(card))
 
-        account = input("Введите номер счёта: ")
-        print(get_mask_account(account))
-
-        banking_transaction = input("Введите дату операции: ")
-        print(get_date(date))
-
+        print(get_mask_account(accoun))
     except ValueError as e:
         print(f"Ошибка: {e}")
 
