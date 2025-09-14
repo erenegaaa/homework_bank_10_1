@@ -38,7 +38,7 @@ def get_mask_card_number(card_number: str) -> str:
     digit = re.sub(r"\D", "", card_number)
     if len(digit) != 16:
         raise ValueError("Номер карты должен состоять из 16 цифр!")
-    text = re.sub(r"\d", "", card_number)
+    text = re.sub(r"\d", "", card_number).strip()
     if len(text) == 0:
         raise ValueError("Вы не ввели тип карты!")
 
@@ -56,7 +56,7 @@ def get_mask_account(account_number: str) -> str:
     if len(parts) < 2:
         raise ValueError("Введите корректный формат: 'Счет ХХХХХХ'")
     first_text = parts[0]
-    check_card = re.sub("D", "", account_number)
+    check_card = re.sub("D", "", account_number).strip()
 
     if len(check_card) < 5:
         raise ValueError("Счет должен состоять минимум из 6 цифр!")

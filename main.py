@@ -13,7 +13,7 @@ def main() -> None:
     account = input("Введите номер счёта: ")
 
     try:
-        print(mask_account_card(card))
+        print(get_mask_card_number(card))
         print(get_mask_account(account))
     except ValueError as e:
         print(f"Ошибка: {e}")
