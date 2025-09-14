@@ -34,8 +34,8 @@ def mask_account_card(account_number: str) -> str:
 def get_date(date_str: str) -> str:
     """Функция меняет формат даты"""
     try:
-        dt = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%f")
+        date_format = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%f")
         # Задаем формат даты
-        return dt.strftime("%d.%m.%Y")
+        return date_format.strftime("%d.%m.%Y")
     except ValueError:
         raise ValueError("Неверный формат даты")
