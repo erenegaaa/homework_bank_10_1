@@ -10,14 +10,11 @@ def main() -> None:
     """Функция управления и вывода"""
     print("Банковский виджет - маскировка данных")
     card = input("Введите наименование и номер карты: ")
-
     account = input("Введите номер счёта: ")
-
 
     try:
         print(mask_account_card(card))
-
-        print(get_mask_account(accoun))
+        print(get_mask_account(account))
     except ValueError as e:
         print(f"Ошибка: {e}")
 

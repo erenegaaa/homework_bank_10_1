@@ -1,8 +1,8 @@
 import re
+
 """
 Модуль для маскировки банковсикх реквизитов.
 """
-
 
 """
  Задание:
@@ -30,15 +30,7 @@ X — это цифра номера.
 """
 
 
-def get_mask_card_number(number_card: str) -> str:
-    """
-    Маскирует номер карты. Функция принимает на вход номер карты,
-    которая в процессе должна вывести номер карты с маской.
-    XXXX XX12** **** XXXX
-    """
-
-
-def mask_card_number(card_number: str) -> str:
+def get_mask_card_number(card_number: str) -> str:
     """
     Функция принимает тип и номер карты,
     возвращая тип и маску карты в формате: ХХХХ ХХ** **** ХХХХ
@@ -46,7 +38,6 @@ def mask_card_number(card_number: str) -> str:
     digit = re.sub(r"\D", "", card_number)
     if len(digit) != 16:
         raise ValueError("Номер карты должен состоять из 16 цифр!")
-
     text = re.sub(r"\d", "", card_number)
     if len(text) == 0:
         raise ValueError("Вы не ввели тип карты!")
@@ -55,13 +46,22 @@ def mask_card_number(card_number: str) -> str:
     return masked_card
 
 
-def get_mask_account(account_number: int) -> str:
+def get_mask_account(account_number: str) -> str:
     """
     Маскирует номер счёта. Функция принимает на вход номер счёта,
     которая в процессе должна вывести номер счёта с маской.
     **XXXX
     """
-    account_str = "".join(str(account_number))
-    # маскируем при помощи срезов
-    masked_account = "**" + account_str[-4:]
+    parts = account_number.split()
+    if len(parts) < 2:
+        raise ValueError("Введите корректный формат: 'Счет ХХХХХХ'")
+    first_text = parts[0]
+    check_card = re.sub("D", "", account_number)
+
+    if len(check_card) < 5:
+        raise ValueError("Счет должен состоять минимум из 6 цифр!")
+    if first_text not in ["Счёт", "Счет", "счет", "счёт"]:
+        raise ValueError("Чтобы получить маску счета,вам надо ввести: 'Счет ХХХХХХ'")
+
+    masked_account = f"{first_text}: **{check_card[-4:]}"
     return masked_account
