@@ -2,19 +2,17 @@
 Главный скрипт для запуска программы.
 """
 
-from src.masks import get_mask_account, get_mask_card_number
-from src.widget import mask_account_card
+# from src.masks import get_mask_account, get_mask_card_number
+from src.widget import mask_account_card #,get_date
 
 
 def main() -> None:
     """Функция управления и вывода"""
     print("Банковский виджет - маскировка данных")
     card = input("Введите наименование и номер карты: ")
-    account = input("Введите номер счёта: ")
-
+    # account = input("Введите номер счёта: ")
     try:
-        print(get_mask_card_number(card))
-        print(get_mask_account(account))
+        print(mask_account_card(card))
     except ValueError as e:
         print(f"Ошибка: {e}")
 

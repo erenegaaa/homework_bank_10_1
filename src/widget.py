@@ -1,4 +1,3 @@
-# import masks
 import re
 
 
@@ -14,7 +13,7 @@ def mask_account_card(account_number: str) -> str:
         return str(text + masks.get_mask_card_number(int(digins)))
 
 
-def get_date(new_date: str) -> str:
-    """Функция меняет формат даты"""
-    # срезами меняем формат даты
-    return f"{new_date[8:10]} {new_date[5:7]} {new_date[:4]}"
+# def get_date(new_date: str) -> str:
+#   """Функция меняет формат даты"""
+#    # срезами меняем формат даты
+#   return f"{new_date[8:10]} {new_date[5:7]} {new_date[:4]}"
