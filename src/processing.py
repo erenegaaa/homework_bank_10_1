@@ -1,13 +1,13 @@
 from typing import Dict, List, Optional
 
 
-def filter_by_state(date: List[Dict], state: str = "EXECUTED") -> List[Dict]:
+def filter_by_state(operations: List[Dict], state: str = "EXECUTED") -> List[Dict]:
     """
     Функция фильтрует список словарей по параметру 'state'.
     state = 'EXECUTED' по умолчанию.
     Функция возвращает отфильтрованный список.
     """
-    return [item for item in date if item.get("state") == state]
+    return [operation for operation in operations if operation.get("state") == state]
 
 
 # data = [
@@ -19,13 +19,13 @@ def filter_by_state(date: List[Dict], state: str = "EXECUTED") -> List[Dict]:
 # print(filter_by_state(data))
 
 
-def sort_by_date(date_info: List[Dict], key: Optional[str] = "date", reverse: bool = True) -> List[Dict]:
+def sort_by_date(sort_operations: List[Dict], date_key: Optional[str] = "date", reverse: bool = True) -> List[Dict]:
     """
     Функция сортирует список словарей по параметру 'date' на убывание.
     Условие функции: параметр 'reverse' = True.
     Возвращает отсортированный список по дате.
     """
-    return sorted(date_info, key=lambda x: x.get(key) or "", reverse=reverse)
+    return sorted(sort_operations, key=lambda operation: operation.get(date_key) or "", reverse=reverse)
 
 
 # data = [
