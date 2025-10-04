@@ -1,5 +1,6 @@
 import pytest
-from src.widget import mask_account_card, get_date
+
+from src.widget import get_date, mask_account_card
 
 
 @pytest.mark.parametrize("input_data,expected", [
@@ -21,7 +22,7 @@ def test_mask_account_card_valid(input_data: str, expected: str) -> None:
 def test_mask_account_card_invalid(invalid_data: object) -> None:
     """Проверка, что для некорректных данных выбрасывается ValueError"""
     with pytest.raises(ValueError):
-        mask_account_card(invalid_data) # type: ignore[arg-type]
+        mask_account_card(invalid_data)  # type: ignore[arg-type]
 
 
 @pytest.mark.parametrize("input_date,expected", [
