@@ -7,7 +7,7 @@ from src.widget import mask_account_card, get_date
     ("MasterCard 5555444433331111", "MasterCard: 5555 44** **** 1111"),
     ("Счет 12345678901234567890", "Счет: **7890"),
 ])
-def test_mask_account_card_valid(input_data, expected):
+def test_mask_account_card_valid(input_data: str, expected: str) -> None:
     """Проверка корректной маскировки карт и счетов"""
     assert mask_account_card(input_data) == expected
 
@@ -18,17 +18,17 @@ def test_mask_account_card_valid(input_data, expected):
     "Счет ABCD",
     "Карта 12345",
 ])
-def test_mask_account_card_invalid(invalid_data):
+def test_mask_account_card_invalid(invalid_data: object) -> None:
     """Проверка, что для некорректных данных выбрасывается ValueError"""
     with pytest.raises(ValueError):
-        mask_account_card(invalid_data)
+        mask_account_card(invalid_data) # type: ignore[arg-type]
 
 
 @pytest.mark.parametrize("input_date,expected", [
     ("2019-07-03T18:35:29.512364", "03.07.2019"),
     ("2022-01-01T00:00:00.000000", "01.01.2022"),
 ])
-def test_get_date_valid(input_date, expected):
+def test_get_date_valid(input_date: str, expected: str) -> None:
     """Проверка корректного преобразования формата даты"""
     assert get_date(input_date) == expected
 
@@ -39,8 +39,7 @@ def test_get_date_valid(input_date, expected):
     "text",
     "",
 ])
-def test_get_date_invalid(invalid_date):
+def test_get_date_invalid(invalid_date: str) -> None:
     """Проверка, что для некорректного формата выбрасывается ValueError"""
     with pytest.raises(ValueError):
         get_date(invalid_date)
-

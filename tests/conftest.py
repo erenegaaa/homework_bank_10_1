@@ -1,7 +1,9 @@
 import pytest
+from typing import Any
+
 
 @pytest.fixture
-def transactions():
+def transactions() -> list[dict[str, Any]]:
     """Функция с тестами для модулей - тесты операций"""
     return [
         {"id": 1, "state": "EXECUTED", "date": "2022-05-20T10:30:00.000000"},
