@@ -30,16 +30,16 @@ def card_number_generator(start: int, stop: int) -> Iterator[str]:
         yield f"{number:016d}"[:4] + " " + f"{number:016d}"[4:8] + " " + f"{number:016d}"[8:12] + " " + f"{number:016d}"[12:]
 
 
-get_transactions = [
-    {"date": "2022-05-20", "description": "Перевод организации", "amount": 1000},
-    {"date": "2022-06-01", "description": "Оплата услуг", "amount": 200},
-    {"date": "2022-07-15", "description": "Покупка продуктов", "amount": 300},
-]
+# get_transactions = [
+#     {"date": "2022-05-20", "description": "Перевод организации", "amount": 1000},
+#     {"date": "2022-06-01", "description": "Оплата услуг", "amount": 200},
+#     {"date": "2022-07-15", "description": "Покупка продуктов", "amount": 300},
+# ]
+#
 
-
-for desc in transaction_descriptions(get_transactions):
-    print(desc)
-
-
-for card in card_number_generator(1, 5):
-    print(card)
+# for desc in transaction_descriptions(get_transactions):
+#     print(desc)
+#
+#
+# for card in card_number_generator(1, 5):
+#     print(card)
