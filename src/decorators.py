@@ -1,6 +1,6 @@
-from functools import wraps
-from typing import Callable, Any, Optional
 import sys
+from functools import wraps
+from typing import Any, Callable, Optional
 
 
 def log(filename: Optional[str] = None) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
@@ -9,7 +9,6 @@ def log(filename: Optional[str] = None) -> Callable[[Callable[..., Any]], Callab
     Если указан filename, логи записываются в файл.
     Иначе выводятся в консоль.
     """
-
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(func)
@@ -34,6 +33,5 @@ def log(filename: Optional[str] = None) -> Callable[[Callable[..., Any]], Callab
             return result
 
         return wrapper
-
 
     return decorator
