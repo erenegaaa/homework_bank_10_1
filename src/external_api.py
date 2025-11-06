@@ -14,19 +14,21 @@ def convert_to_rub(transaction: Any) -> float:
     Если USD или EUR — делает запрос к API для получения курса.
     Работает как со словарём, так и с объектом с атрибутами.
     """
-    try:
-        amount_data = transaction.get("operation_amount", {})
-        amount = float(amount_data.get("amount", 0))
-    except AttributeError:
-        amount_data = getattr(transaction, "operation_amount", None)
-        amount = float(getattr(amount_data, "amount", 0)) if amount_data else 0
+    def get_attr_or_key(obj, key, default=None):
+        """Помощник: достает значение по ключу или атрибуту."""
+        if isinstance(obj, dict):
+            return obj.get(key, default)
+        return getattr(obj, key, default)
 
-    try:
-        currency_data = amount_data.get("currency", {})
-        currency = currency_data.get("code")
-    except AttributeError:
-        currency_data = getattr(amount_data, "currency", None)
-        currency = getattr(currency_data, "code", None) if currency_data else None
+    amount_data = (
+        get_attr_or_key(transaction, "operationAmount")
+        or get_attr_or_key(transaction, "operation_amount", {})
+    )
+
+    amount = float(get_attr_or_key(amount_data, "amount", 0))
+
+    currency_data = get_attr_or_key(amount_data, "currency", {})
+    currency = get_attr_or_key(currency_data, "code")
 
     if not currency:
         raise ValueError("Не удалось определить валюту транзакции")
@@ -47,15 +49,3 @@ def convert_to_rub(transaction: Any) -> float:
 
     data = response.json()
     return float(data.get("result", 0))
-
-
-# if __name__ == "__main__":
-#     transaction = {
-#         "operation_amount": {
-#             "amount": "100",
-#             "currency": {"code": "USD"}
-#         }
-#     }
-#
-#     result = convert_to_rub(transaction)
-#     print("Конвертированная сумма в RUB:", result)
