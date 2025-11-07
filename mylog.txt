@@ -1,2 +1,0 @@
-div ok
-div error: ZeroDivisionError. Inputs: (5, 0), {}
