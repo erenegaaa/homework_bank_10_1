@@ -1,5 +1,10 @@
 import json
+import logging
 from typing import Any
+
+
+# Настройка логирования для utils
+
 
 
 def read_json(file_path: str) -> list[dict[str, Any]]:

@@ -1,5 +1,8 @@
 from typing import Union
+import logging
 
+
+# Настройка логирования для masks
 
 def get_mask_card_number(number_card: Union[str]) -> str:
     """
