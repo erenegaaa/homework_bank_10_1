@@ -5,11 +5,14 @@ import pytest
 from src.processing import filter_by_state, sort_by_date
 
 
-@pytest.mark.parametrize('state, expected', [
-    ("EXECUTED", 2),
-    ("CANCELED", 1),
-    ("PENDING", 0),
-])
+@pytest.mark.parametrize(
+    "state, expected",
+    [
+        ("EXECUTED", 2),
+        ("CANCELED", 1),
+        ("PENDING", 0),
+    ],
+)
 def test_filter_by_state(transactions: list[dict[str, Any]], state: str, expected: int) -> None:
     """Тест по параметризации"""
     result = filter_by_state(transactions, state)

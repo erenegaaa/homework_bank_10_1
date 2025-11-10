@@ -7,6 +7,7 @@ from src.decorators import log
 
 def test_log_to_console_success(capsys: pytest.CaptureFixture[str]) -> None:
     """Проверяет успешный вызов и вывод в консоль"""
+
     @log()
     def add(a: int, b: int) -> int:
         return a + b
@@ -18,6 +19,7 @@ def test_log_to_console_success(capsys: pytest.CaptureFixture[str]) -> None:
 
 def test_log_to_console_error(capsys: pytest.CaptureFixture[str]) -> None:
     """Проверяет логирование ошибки в консоль"""
+
     @log()
     def div(a: int, b: int) -> float:
         return a / b

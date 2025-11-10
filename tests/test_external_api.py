@@ -73,10 +73,9 @@ def test_no_currency() -> None:
 
 class TransactionObj:
     def __init__(self) -> None:
-        self.operationAmount = type("Amount", (), {
-            "amount": 50,
-            "currency": type("Currency", (), {"code": "RUB"})()
-        })()
+        self.operationAmount = type(
+            "Amount", (), {"amount": 50, "currency": type("Currency", (), {"code": "RUB"})()}
+        )()
 
 
 def test_with_object_input() -> None:

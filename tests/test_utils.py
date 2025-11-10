@@ -1,11 +1,11 @@
 import json
 import logging
-from src.utils import LOG_FILE
 from pathlib import Path
 from typing import Iterator
 
 import pytest
-from src.utils import read_json
+
+from src.utils import LOG_FILE, read_json
 
 
 def test_read_json_valid(tmp_path: Path) -> None:
@@ -35,6 +35,7 @@ def test_read_json_not_list(tmp_path: Path) -> None:
     test_file.write_text(json.dumps({"id": 1}), encoding="utf-8")
     assert read_json(str(test_file)) == []
 
+
 LOGGER_NAME = "src.utils"
 
 
@@ -47,7 +48,7 @@ def temp_log_handler(tmp_path: Path) -> Iterator[Path]:
     log_path = tmp_path / "utils.log"
 
     file_handler = logging.FileHandler(log_path, mode="w", encoding="utf-8")
-    formatter = logging.Formatter('%(levelname)s - %(message)s')
+    formatter = logging.Formatter("%(levelname)s - %(message)s")
     file_handler.setFormatter(formatter)
 
     logger = logging.getLogger(LOGGER_NAME)
@@ -64,6 +65,7 @@ def temp_log_handler(tmp_path: Path) -> Iterator[Path]:
             file_handler.close()
         except OSError as e:
             logger.warning(f"Не удалось закрыть временный лог-файл: {e}")
+
 
 def _read_log_text(path: Path) -> str:
     """Удобный ридер лог-файла; ждёт данных и возвращает содержимое."""
@@ -156,8 +158,6 @@ def test_read_json_invalid(tmp_path: Path) -> None:
     _flush_logger()
 
     assert result == []
-
-
     with open(LOG_FILE, "r", encoding="utf-8") as f:
         log_text = f.read()
     assert "ERROR" in log_text or "error" in log_text.lower()
