@@ -214,3 +214,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Игнорировать большие или приватные данные
+data/*.csv
+data/*.xlsx
