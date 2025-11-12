@@ -1,10 +1,13 @@
-import pytest
+from pathlib import Path
+
 import pandas as pd
+import pytest
+
 from src.financial_transactions import read_transactions_csv, read_transactions_excel
 
 
 @pytest.fixture
-def sample_csv(tmp_path):
+def sample_csv(tmp_path: Path) -> str:
     """Создаёт временный CSV-файл с тестовыми данными."""
     file = tmp_path / "transactions.csv"
     file.write_text(
@@ -16,7 +19,7 @@ def sample_csv(tmp_path):
 
 
 @pytest.fixture
-def sample_excel(tmp_path):
+def sample_excel(tmp_path: Path) -> str:
     """Создаёт временный Excel-файл с тестовыми данными."""
     df = pd.DataFrame(
         [
@@ -38,14 +41,14 @@ def sample_excel(tmp_path):
     return str(file)
 
 
-def test_read_transactions_csv(sample_csv):
+def test_read_transactions_csv(sample_csv: str) -> None:
     result = read_transactions_csv(sample_csv)
     assert isinstance(result, list)
     assert result[0]["amount"] == 1000
     assert result[0]["currency_code"] == "EUR"
 
 
-def test_read_transactions_excel(sample_excel):
+def test_read_transactions_excel(sample_excel: str) -> None:
     result = read_transactions_excel(sample_excel)
     assert isinstance(result, list)
     assert result[0]["currency_name"] == "Euro"

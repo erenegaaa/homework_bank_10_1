@@ -1,5 +1,6 @@
-import pandas as pd
 from typing import Any, Hashable
+
+import pandas as pd
 
 
 def read_transactions_csv(file_path: str) -> list[dict[Hashable, Any]]:
