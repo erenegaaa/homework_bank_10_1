@@ -2,7 +2,7 @@
 Главный скрипт для запуска программы.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from src.financial_transactions import read_transactions_csv, read_transactions_excel
 from src.processing import filter_by_state, filter_rub_only, get_amount, get_currency_code, sort_by_date
@@ -27,10 +27,10 @@ def choose_file_source() -> List[Dict[str, Any]]:
             return read_json("data/operations.json")
         elif choice == "2":
             print("Для обработки выбран CSV-файл.")
-            return read_transactions_csv("data/transactions.csv")
+            return read_transactions_csv("data/transactions.csv")  # type: ignore
         elif choice == "3":
             print("Для обработки выбран XLSX-файл.")
-            return read_transactions_excel("data/transactions_excel.xlsx")
+            return read_transactions_excel("data/transactions_excel.xlsx")  # type: ignore
         else:
             print("Введите корректный пункт меню (1, 2 или 3).")
 
@@ -53,15 +53,18 @@ def choose_status() -> str:
         print(f'Статус операции "{status}" недоступен.')
 
 
-def choose_sorting() -> bool | None:
+def choose_sorting() -> Optional[bool]:
     """
-    Запрашивает необходимость сортировки и направление.
+    Запрашивает необходимость сортировки и её направление.
+    возвращает:
+        True — сортировка по убыванию
+        False — по возрастанию
+        None — сортировка выключена
     """
     choice = input("Отсортировать операции по дате? (Да/Нет): ").strip().lower()
 
     if choice not in ("да", "нет"):
         return None
-
     if choice == "нет":
         return None
 
@@ -88,11 +91,11 @@ def format_transaction(transaction: Dict[str, Any]) -> str:
     amount = get_amount(transaction)
     currency = get_currency_code(transaction)
 
-    amount_text = f"{amount} {currency}" if amount and currency else "— —"
+    amount_text = f"{amount} {currency}" if (amount is not None and currency) else "— —"
 
     lines = [
         f"{date} {description}",
-        f"{from_acc} -> {to_acc}" if from_acc or to_acc else "",
+        f"{from_acc} -> {to_acc}" if (from_acc or to_acc) else "",
         f"Сумма: {amount_text}",
         "",
     ]
@@ -129,6 +132,7 @@ def main() -> None:
     if only_rub == "да":
         data = filter_rub_only(data)
 
+    # Поиск по слову
     search_choice = (
         input("Отфильтровать список транзакций по определенному слову в описании? (Да/Нет): ").strip().lower()
     )

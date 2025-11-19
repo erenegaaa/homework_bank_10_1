@@ -21,53 +21,56 @@ def sort_by_date(sort_operations: List[Dict], date_key: Optional[str] = "date", 
 
 def filter_rub_only(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Фильтрация по рублям
+    Фильтрует только рублевые операции по валюте (RUB).
+    Работает с JSON, CSV, XLSX форматами.
     """
 
-    result = []
+    result: List[Dict[str, Any]] = []
 
     for op in data:
-        currency_code = None
-
-        if "currency_code" in op:
-            currency_code = op.get("currency_code")
-
-        if not currency_code and "operationAmount" in op:
+        currency_code: Optional[str] = None
+        if isinstance(op.get("currency_code"), str):
+            currency_code = op["currency_code"]
+        if currency_code is None and "operationAmount" in op:
             currency_data = op["operationAmount"].get("currency")
             if isinstance(currency_data, dict):
-                currency_code = currency_data.get("code")
-
-        if not currency_code and isinstance(op.get("currency"), str):
-            currency_code = op.get("currency")
-
-        if not currency_code and isinstance(op.get("currency"), dict):
-            currency_code = op["currency"].get("code")
-
+                code = currency_data.get("code")
+                if isinstance(code, str):
+                    currency_code = code
+        if currency_code is None and isinstance(op.get("currency"), str):
+            currency_code = op["currency"]
+        if currency_code is None and isinstance(op.get("currency"), dict):
+            code = op["currency"].get("code")
+            if isinstance(code, str):
+                currency_code = code
         if isinstance(currency_code, str) and currency_code.upper() == "RUB":
             result.append(op)
-
     return result
 
 
 def get_amount(transaction: dict) -> float | None:
     """Возвращает сумму из JSON/CSV/XLSX."""
-    if "amount" in transaction:  # CSV/XLSX
-        return transaction["amount"]
+    if "amount" in transaction:
+        return float(transaction["amount"])
 
-    if "operationAmount" in transaction:  # JSON
-        return transaction["operationAmount"].get("amount")
-
+    if "operationAmount" in transaction:
+        amount = transaction["operationAmount"].get("amount")
+        if amount is not None:
+            return float(amount)
     return None
 
 
 def get_currency_code(transaction: dict) -> str | None:
     """Возвращает код валюты из JSON/CSV/XLSX."""
-    if "currency_code" in transaction:  # CSV/XLSX
-        return transaction["currency_code"]
 
-    if "operationAmount" in transaction:  # JSON
+    if "currency_code" in transaction:
+        code = transaction["currency_code"]
+        return str(code) if code is not None else None
+
+    if "operationAmount" in transaction:
         currency = transaction["operationAmount"].get("currency")
         if isinstance(currency, dict):
-            return currency.get("code")
+            code = currency.get("code")
+            return str(code) if code is not None else None
 
     return None
