@@ -1,5 +1,6 @@
 import pytest
-from src.search import process_bank_search, process_bank_operations
+
+from src.search import process_bank_operations, process_bank_search
 
 
 @pytest.fixture
@@ -29,4 +30,5 @@ def test_process_bank_operations(data):
 
 
 def test_process_bank_operations_empty():
+
     assert process_bank_operations([], ["test"]) == {}
