@@ -1,6 +1,6 @@
 import re
 from collections import Counter
-from typing import List, Dict
+from typing import Dict, List
 
 
 def process_bank_search(data: List[Dict], search: str) -> List[Dict]:
