@@ -23,9 +23,7 @@ def mask_account_card(account_number: str) -> str:
         text_display = text if text else "Карта"
         return f"{text_display}: {digits[:4]} {digits[4:6]}** **** {digits[-4:]}"
 
-    raise ValueError(
-        "Не верно введены данные: ожидается формат (тип карты и 16 цифр или пометка 'счет' и номер)"
-    )
+    raise ValueError("Не верно введены данные: ожидается формат (тип карты и 16 цифр или пометка 'счет' и номер)")
 
 
 def get_date(date_str: str) -> str:
