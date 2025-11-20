@@ -1,9 +1,6 @@
-"""
-Главный скрипт для запуска программы.
-"""
-
 from __future__ import annotations
 
+import re
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -14,43 +11,83 @@ from src.utils import read_json
 
 
 def format_date(date_str: str) -> str:
-    """Преобразует дату из ISO в DD.MM.YYYY."""
+    """Преобразует ISO8601 в DD.MM.YYYY."""
     try:
-        return datetime.fromisoformat(date_str).strftime("%d.%m.%Y")
+        return datetime.fromisoformat(date_str.replace("Z", "+00:00")).strftime("%d.%m.%Y")
     except Exception:
         return date_str
 
 
-def format_accounts(transaction: dict) -> str:
-    """Вывод отправителя и получателя."""
-    from_acc = transaction.get("from")
-    to_acc = transaction.get("to")
+def get_mask_card_number(card: str) -> str:
+    """XXXX XX** **** 1234"""
+    digits = re.sub(r"\D", "", card)
+    if len(digits) != 16:
+        raise ValueError("not a 16-digit card")
+    return f"{digits[:4]} {digits[4:6]}** **** {digits[-4:]}"
 
-    if from_acc and to_acc:
-        return f"{from_acc} -> {to_acc}"
-    if from_acc and not to_acc:
-        return f"{from_acc} ->"
-    if not from_acc and to_acc:
-        return f"-> {to_acc}"
 
+def get_mask_account(account: str) -> str:
+    """**1234"""
+    digits = re.sub(r"\D", "", account)
+    if len(digits) < 4:
+        raise ValueError("invalid account")
+    return "**" + digits[-4:]
+
+
+def _mask_card_in_text(text: str) -> str:
+    def repl(match: re.Match) -> str:
+        digits = re.sub(r"\D", "", match.group(0))
+        try:
+            return get_mask_card_number(digits)
+        except ValueError:
+            return match.group(0)  # type: ignore
+
+    return re.sub(r"(?:\d[ -]?){16}", repl, text)
+
+
+def _mask_accounts_in_text(text: str) -> str:
+    def repl(match: re.Match) -> str:
+        digits = re.sub(r"\D", "", match.group(1))
+        try:
+            return "Счет " + get_mask_account(digits)
+        except ValueError:
+            return match.group(0)  # type: ignore
+
+    return re.sub(r"(?i)\bСчет\s*([0-9\s]{4,})", repl, text)
+
+
+def format_accounts(transaction: Dict[str, Any]) -> str:
+    from_acc = transaction.get("from", "")
+    to_acc = transaction.get("to", "")
+
+    def mask(value: Any) -> str:
+        if not value:
+            return ""
+        s = str(value)
+        s = _mask_accounts_in_text(s)
+        s = _mask_card_in_text(s)
+        return s
+
+    fm = mask(from_acc)
+    tm = mask(to_acc)
+
+    if fm and tm:
+        return f"{fm} -> {tm}"
+    if fm:
+        return f"{fm} ->"
+    if tm:
+        return f"-> {tm}"
     return ""
 
 
 def format_transaction(transaction: Dict[str, Any]) -> str:
-    """Форматирует транзакцию для вывода."""
-
-    date_raw = transaction.get("date", "—")
-    date_txt = format_date(date_raw)
-
+    date_txt = format_date(transaction.get("date", "—"))
     description = transaction.get("description", "—")
 
     amount = get_amount(transaction)
     currency = get_currency_code(transaction)
 
-    if amount is not None and currency:
-        amount_text = f"{amount} {currency}"
-    else:
-        amount_text = "— —"
+    amount_text = f"{amount} {currency}" if amount is not None and currency else "— —"
 
     accounts_line = format_accounts(transaction)
 
@@ -65,114 +102,95 @@ def format_transaction(transaction: Dict[str, Any]) -> str:
 
 
 def choose_file_source() -> List[Dict[str, Any]]:
-    """
-    Запрашивает у пользователя формат входных данных JSON/CSV/XLSX
-    """
     print("Выберите необходимый пункт меню:")
-    print("1. Получить информацию о транзакциях из JSON-файла")
-    print("2. Получить информацию о транзакциях из CSV-файла")
-    print("3. Получить информацию о транзакциях из XLSX-файла")
+    print("1. Получить информацию из JSON")
+    print("2. Получить информацию из CSV")
+    print("3. Получить информацию из XLSX")
 
     while True:
         choice = input("Ваш выбор: ").strip()
+
         if choice == "1":
-            print("Для обработки выбран JSON-файл.")
+            print("Формат JSON выбран.")
             return read_json("data/operations.json")
+
         elif choice == "2":
-            print("Для обработки выбран CSV-файл.")
+            print("Формат CSV выбран.")
             data = read_transactions_csv("data/transactions.csv")
-            return [{str(k): v for k, v in item.items()} for item in data]
+            return [{str(k): v for k, v in row.items()} for row in data]
+
         elif choice == "3":
-            print("Для обработки выбран XLSX-файл.")
+            print("Формат XLSX выбран.")
             data = read_transactions_excel("data/transactions_excel.xlsx")
-            return [{str(k): v for k, v in item.items()} for item in data]
-        else:
-            print("Введите корректный пункт меню (1, 2 или 3).")
+            return [{str(k): v for k, v in row.items()} for row in data]
+
+        print("Введите 1, 2 или 3.")
 
 
 def choose_status() -> str:
-    """Выбор статуса транзакций."""
-
-    valid_statuses = {"EXECUTED", "CANCELED", "PENDING"}
+    valid = {"EXECUTED", "CANCELED", "PENDING"}
 
     while True:
-        print("Введите статус для фильтрации.")
-        print("Доступные статусы: EXECUTED, CANCELED, PENDING")
-        status = input("Статус: ").strip().upper()
-
-        if status in valid_statuses:
-            print(f'Операции отфильтрованы по статусу "{status}".')
+        print("Введите статус EXECUTED CANCELED PENDING")
+        status = input("Ваш выбор: ").strip().upper()
+        if status in valid:
+            print(f'Фильтрация по статусу "{status}".')
             return status
-
-        print(f'Статус операции "{status}" недоступен.')
+        print("Некорректный статус.")
 
 
 def choose_sorting() -> Optional[bool]:
-    """Запрашивает необходимость сортировки по дате."""
-    choice = input("Отсортировать операции по дате? (Да/Нет): ").strip().lower()
+    ans = input("Отсортировать по дате? (Да/Нет): ").strip().lower()
 
-    if choice not in ("да", "нет"):
-        return None
-
-    if choice == "нет":
+    if ans != "да":
         return None
 
     while True:
-        direction = input("Отсортировать по возрастанию или по убыванию? ").strip().lower()
-        if direction in ("по возрастанию", "возрастание"):
+        d = input("По возрастанию или по убыванию? ").strip().lower()
+        if d.startswith("по возрастанию"):
             return False
-        if direction in ("по убыванию", "убывание"):
+        if d.startswith("по убыванию"):
             return True
         print("Введите корректный вариант.")
 
 
 def main() -> None:
-    """Основная функция программы."""
-
     print("Привет! Добро пожаловать в программу работы с банковскими транзакциями.")
 
     data = choose_file_source()
     if not data:
-        print("Файл пустой или не содержит корректных данных.")
+        print("Нет данных.")
         return
 
-    # Фильтрация по статусу
     status = choose_status()
     data = filter_by_state(data, status)
 
     if not data:
-        print("Не найдено ни одной транзакции после фильтрации по статусу.")
+        print("Нет данных после фильтрации.")
         return
 
-    # Сортировка
     sorting = choose_sorting()
     if sorting is not None:
         data = sort_by_date(data, reverse=sorting)
 
-    # Фильтр RUB
-    only_rub = input("Выводить только рублевые транзакции? (Да/Нет): ").strip().lower()
+    only_rub = input("Только рублевые? (Да/Нет): ").strip().lower()
     if only_rub == "да":
         data = filter_rub_only(data)
 
-    # Поиск
-    search_choice = input(
-        "Отфильтровать список транзакций по слову в описании? (Да/Нет): "
-    ).strip().lower()
-
-    if search_choice == "да":
+    search = input("Фильтровать по слову из описания? (Да/Нет): ").strip().lower()
+    if search == "да":
         keyword = input("Введите слово: ").strip()
         data = process_bank_search(data, keyword)
 
-    # Результат
     if not data:
-        print("Не найдено ни одной транзакции, подходящей под ваши условия фильтрации.")
+        print("Нет транзакций после всех фильтров.")
         return
 
     print("\nРаспечатываю итоговый список транзакций...")
     print(f"\nВсего банковских операций: {len(data)}\n")
 
-    for transaction in data:
-        print(format_transaction(transaction))
+    for t in data:
+        print(format_transaction(t))
 
 
 if __name__ == "__main__":
